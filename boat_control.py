@@ -5,8 +5,14 @@ import math
 
 from zmqRemoteApi import RemoteAPIClient
 
-Ts = 0.05
+from mpc import MPC
 
+Ts = 0.05
+mass = 80
+v_min = -5
+v_max = 5
+N = 5
+N_c = 5
 
 def quat2euler(h):
     roll = np.arctan2(2*(h[0]*h[1] + h[2]*h[3]), 1 - 2*(h[1]**2 + h[2]**2))
@@ -17,6 +23,14 @@ def quat2euler(h):
 
 def get_error(X_d, X_m):
     return X_d - X_m
+
+def extract_cartesian(velocity):
+    linear = velocity[0][0]
+    angular = velocity[-1][-1]
+    x = linear*np.cos(angular)
+    y = linear*np.sin(angular)
+
+    return x, y
 
 def extract_error_information(error, X_m):
     v_x = error[0][0]
@@ -64,11 +78,6 @@ quat = np.array([boat_orientation[3], boat_orientation[0], boat_orientation[1], 
 X_m = np.array([[boat_position[0]], [boat_position[1]], [boat_position[2]], [roll], [pitch], [yaw]])
 
 #First data
-error = get_error(X_d, X_m)
-v_x, v_y, yaw = extract_error_information(error, X_m)
-angular = extract_angular(v_x, v_y, yaw)
-linear = extract_linear(v_x, v_y)
-
 boat_data_x = []
 boat_data_y = []
 target_position = [position[0], position[1]]
@@ -76,8 +85,23 @@ initial_position = [boat_position[0], boat_position[1]]
 boat_data_x.append(boat_position[0])
 boat_data_y.append(boat_position[1])
 
+setpoint = np.ravel([[position[0], position[1], 0, 0] for i in range(0, N+1)])
+mpc = MPC(mass, np.array(initial_position), v_min, v_max, N, N_c, Ts)
+result = mpc.getNewForce(setpoint)
+force = result[1]
+print(force)
+
+error = get_error(X_d, X_m)
+v_x, v_y, yaw = extract_error_information(error, X_m)
+angular = extract_angular(force[0], force[1], yaw)
+linear = extract_linear(force[0], force[1])
+#angular = extract_angular(v_x, v_y, yaw)
+#linear = extract_linear(v_x, v_y)
+
+
 while abs(linear) > 0.3:
     print('Linear: ' + str(linear))
+    print('Angular: ' + str(angular))
     sim.addForce(boat, [1,0,0] , [linear, 0, 0])
     sim.addForceAndTorque(boat, [0, 0, 0] , [0, 0, angular])
 
@@ -99,16 +123,24 @@ while abs(linear) > 0.3:
     boat_orientation = sim.getObjectQuaternion(boat, -1)
     quat = np.array([boat_orientation[3], boat_orientation[0], boat_orientation[1], boat_orientation[2]]) # Remember: getObjectQuaternion has real part as last element
     (roll, pitch, yaw) = quat2euler(quat)
+    boat_velocity = sim.getObjectVelocity(boat, -1)
+    v_x, v_y = extract_cartesian(boat_velocity)
+
 
     X_m = np.array([[boat_position[0]], [boat_position[1]], [boat_position[2]], [roll], [pitch], [yaw]])
     boat_data_x.append(boat_position[0])
     boat_data_y.append(boat_position[1])
 
     #Collect data
+    mpc.x_0 = np.array([boat_position[0], boat_position[1], v_x, v_y])
+    result = mpc.getNewForce(setpoint)
+    force = result[1]
+    print(force)
+
     error = get_error(X_d, X_m)
     v_x, v_y, yaw = extract_error_information(error, X_m)
-    angular = extract_angular(v_x, v_y, yaw)
-    linear = extract_linear(v_x, v_y)
+    angular = extract_angular(force[0], force[1], yaw)
+    linear = extract_linear(force[0], force[1])
 
 print('Arrived')
 
