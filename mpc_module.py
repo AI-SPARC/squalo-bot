@@ -4,7 +4,7 @@ from casadi import *
 
 
 class MPCClass():
-    def __init__(self, ref, ts, initial_position):
+    def __init__(self, ref, ts, initial_position, N, F_max, F_min):
         self.Ts = ts
         self.reference = ref
 
@@ -22,11 +22,11 @@ class MPCClass():
 
         #Model Variables
         #r = model.set_variable(var_type='_x', var_name='r', shape=(1,1))
-        x = model.set_variable(var_type='_x', var_name='x', shape=(1,1))
-        y = model.set_variable(var_type='_x', var_name='y', shape=(1,1))
-        theta = model.set_variable(var_type='_x', var_name='theta', shape=(1,1))
-        v = model.set_variable(var_type='_x', var_name='v', shape=(1,1))
-        omega = model.set_variable(var_type='_x', var_name='omega', shape=(1,1))
+        self.x = model.set_variable(var_type='_x', var_name='x', shape=(1,1))
+        self.y = model.set_variable(var_type='_x', var_name='y', shape=(1,1))
+        self.theta = model.set_variable(var_type='_x', var_name='theta', shape=(1,1))
+        self.v = model.set_variable(var_type='_x', var_name='v', shape=(1,1))
+        self.omega = model.set_variable(var_type='_x', var_name='omega', shape=(1,1))
 
         # Two states for the desired (set) motor position:
         fr = model.set_variable(var_type='_u', var_name='fr')
@@ -44,14 +44,14 @@ class MPCClass():
 
         J = 3.007 * m
 
-        v_dot = (d*(omega**2)) + (1/m)*(fr+fl)
-        omega_dot = (l/(m*(d**2) + J))*(fr-fl) - (m*d*v*omega)/(m*(d**2) + J)
+        v_dot = (d*(self.omega**2)) + (1/m)*(fr+fl)
+        omega_dot = (l/(m*(d**2) + J))*(fr-fl) - (m*d*self.v*self.omega)/(m*(d**2) + J)
 
 
         #model.set_rhs('r', v)
-        model.set_rhs('x', v*np.cos(theta))
-        model.set_rhs('y', v*np.sin(theta))
-        model.set_rhs('theta', omega)
+        model.set_rhs('x', self.v*np.cos(self.theta))
+        model.set_rhs('y', self.v*np.sin(self.theta))
+        model.set_rhs('theta', self.omega)
         model.set_rhs('v', v_dot)
         model.set_rhs('omega', omega_dot)
 
@@ -62,7 +62,7 @@ class MPCClass():
 
         #Optimizer parameters
         setup_mpc = {
-            'n_horizon': 20,
+            'n_horizon': N,
             't_step': self.Ts,
             'n_robust': 0,
             'store_full_solution': False,
@@ -76,17 +76,17 @@ class MPCClass():
         self.mpc.set_param(**setup_mpc)
 
         #Objective function
-        mterm = (self.reference[0] - x)**2 + \
-                (self.reference[1] - y)**2 + \
-                0*(self.reference[2] - theta)**2 + \
-                (self.reference[3] - v)**2 + \
-                (self.reference[4] - omega)**2
+        mterm = (self.reference[0] - self.x)**2 + \
+                (self.reference[1] - self.y)**2 + \
+                50*(self.reference[2] - self.theta)**2 + \
+                (self.reference[3] - self.v)**2 + \
+                (self.reference[4] - self.omega)**2
         #mterm = r**2 + theta**2 + v**2 + omega**2
-        lterm = (self.reference[0] - x)**2 + \
-                (self.reference[1] - y)**2 + \
-                0*(self.reference[2] - theta)**2 + \
-                0*(self.reference[3] - v)**2 + \
-                0*(self.reference[4] - omega)**2
+        lterm = (self.reference[0] - self.x)**2 + \
+                (self.reference[1] - self.y)**2 + \
+                50*(self.reference[2] - self.theta)**2 + \
+                (self.reference[3] - self.v)**2 + \
+                (self.reference[4] - self.omega)**2
         #lterm = r**2 + theta**2 + v**2 + omega**2
 
         self.mpc.set_objective(mterm=mterm, lterm=lterm)
@@ -99,11 +99,11 @@ class MPCClass():
         #Constraints
 
         # Lower bounds on inputs:
-        self.mpc.bounds['lower','_u', 'fr'] = -20
-        self.mpc.bounds['lower','_u', 'fl'] = -20
+        self.mpc.bounds['lower','_u', 'fr'] = F_min
+        self.mpc.bounds['lower','_u', 'fl'] = F_min
         # Lower bounds on inputs:
-        self.mpc.bounds['upper','_u', 'fr'] = 20
-        self.mpc.bounds['upper','_u', 'fl'] = 20
+        self.mpc.bounds['upper','_u', 'fr'] = F_max
+        self.mpc.bounds['upper','_u', 'fl'] = F_max
 
         #Scaling
         self.mpc.scaling['_x', 'x'] = 1
@@ -130,5 +130,6 @@ class MPCClass():
         self.mpc.x0 = x0
         #Running Optimizer
         u0 = self.mpc.make_step(x0)
+        
         return u0
 
