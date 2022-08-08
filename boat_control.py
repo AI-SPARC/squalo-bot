@@ -38,6 +38,10 @@ class BoatControl():
         self.boat_speed = []
         self.time_data = []
 
+        self.theta_ref = []
+        self.omega_ref = []
+        self.v_ref = []
+
     def quat2euler(self, h):
         roll = np.arctan2(2*(h[0]*h[1] + h[2]*h[3]), 1 - 2*(h[1]**2 + h[2]**2))
         pitch = np.arcsin(2*(h[0]*h[2] - h[3]*h[1]))
@@ -97,6 +101,11 @@ class BoatControl():
         self.theta_data.append(theta)
         self.x_target = position_to_world[0]
         self.y_target = position_to_world[1]
+
+        self.theta_ref.append(theta)
+        self.omega_ref.append(omega)
+        self.v_ref.append(v)
+
         return reference
 
     def distance(self):
@@ -148,43 +157,51 @@ if __name__ == '__main__':
     boat_control.execute_control()
 
     plt.figure('Figure 1')
-    plt.plot(boat_control.time_data, boat_control.boat_speed)
+    plt.plot(boat_control.time_data, boat_control.boat_speed, label='Boat speed')
+    plt.plot(boat_control.time_data, boat_control.v_ref, label='Reference')
     plt.title('Boat Speed History')
     plt.xlabel('Time')
     plt.ylabel('Speed')
     plt.savefig('images/figure_1.png', dpi=300, bbox_inches='tight')
+    plt.legend()
     plt.show()
 
     plt.figure('Figure 2')
-    plt.plot(boat_control.time_data, boat_control.Fr_data)
-    plt.plot(boat_control.time_data, boat_control.Fl_data)
+    plt.plot(boat_control.time_data, boat_control.Fr_data, label='Right motor force')
+    plt.plot(boat_control.time_data, boat_control.Fl_data, label='Left motor force')
     plt.title('Boat Forces History')
     plt.xlabel('Time')
     plt.ylabel('Fr and Fl')
     plt.savefig('images/figure_2.png', dpi=300, bbox_inches='tight')
+    plt.legend()
     plt.show()
 
     plt.figure('Figure 3')
-    plt.plot(boat_control.x_boat, boat_control.y_boat)
-    plt.plot([boat_control.x_target], [boat_control.y_target], marker="o", markersize=10, markeredgecolor="red", markerfacecolor="green")
+    plt.plot(boat_control.x_boat, boat_control.y_boat, label='Boat Position')
+    plt.plot([boat_control.x_target], [boat_control.y_target], marker="o", markersize=10, markerfacecolor="green", label='Target')
     plt.title('Boat Position History')
     plt.xlabel('X')
     plt.ylabel('Y')
     plt.savefig('images/figure_3.png', dpi=300, bbox_inches='tight')
+    plt.legend()
     plt.show()
 
     plt.figure('Figure 4')
-    plt.plot(boat_control.time_data, boat_control.theta_data)
+    plt.plot(boat_control.time_data, boat_control.theta_data, label='Theta')
+    plt.plot(boat_control.time_data, boat_control.theta_ref, label='Reference')
     plt.title('Theta History')
     plt.xlabel('Time')
     plt.ylabel('Theta')
     plt.savefig('images/figure_4.png', dpi=300, bbox_inches='tight')
+    plt.legend()
     plt.show()
 
     plt.figure('Figure 5')
-    plt.plot(boat_control.time_data, boat_control.omega_data)
+    plt.plot(boat_control.time_data, boat_control.omega_data, label='Omega')
+    plt.plot(boat_control.time_data, boat_control.omega_ref, label='Reference')
     plt.title('Omega History')
     plt.xlabel('Time')
     plt.ylabel('Omega')
     plt.savefig('images/figure_5.png', dpi=300, bbox_inches='tight')
+    plt.legend()
     plt.show()
