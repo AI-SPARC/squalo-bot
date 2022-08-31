@@ -78,13 +78,13 @@ class MPCClass():
         #Objective function
         mterm = (self.reference[0] - self.x)**2 + \
                 (self.reference[1] - self.y)**2 + \
-                100*(self.reference[2] - self.theta)**2 + \
+                70*(self.reference[2] - self.theta)**2 + \
                 (self.reference[3] - self.v)**2 + \
                 (self.reference[4] - self.omega)**2
         #mterm = r**2 + theta**2 + v**2 + omega**2
         lterm = (self.reference[0] - self.x)**2 + \
                 (self.reference[1] - self.y)**2 + \
-                100*(self.reference[2] - self.theta)**2 + \
+                70*(self.reference[2] - self.theta)**2 + \
                 (self.reference[3] - self.v)**2 + \
                 (self.reference[4] - self.omega)**2
         #lterm = r**2 + theta**2 + v**2 + omega**2
@@ -95,6 +95,7 @@ class MPCClass():
             fr=0,
             fl=0
         )
+
         #[4.5240309  0.23942829 0.05027771 0.02493158]
         #Constraints
 

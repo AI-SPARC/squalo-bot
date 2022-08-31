@@ -1,4 +1,4 @@
-from xml.dom import xmlbuilder
+﻿from xml.dom import xmlbuilder
 import numpy as np
 import time
 import math
@@ -134,8 +134,8 @@ class BoatControl():
             # Actuation
             print('Final Fr: ' + str(Fr))
             print('Final Fl: ' + str(Fl))
-            self.sim.addForce(self.boat, [-0.3, -0.2, 0] , [Fr[0], 0, 0]) # Right Motor
-            self.sim.addForce(self.boat, [-0.3, 0.2, 0] , [Fl[0], 0, 0]) # Left Motor
+            self.sim.addForce(self.boat, [-0.3, -0.2, -0.1] , [Fr[0], 0, 0]) # Right Motor
+            self.sim.addForce(self.boat, [-0.3, 0.2, -0.1] , [Fl[0], 0, 0]) # Left Motor
 
 
             self.Fr_data.append(Fr[0])
@@ -146,7 +146,7 @@ class BoatControl():
             self.time_data.append(time_elapsed)
 
             # Time step
-            #time.sleep(Ts)
+            #time.sleep(self.Ts)
             self.client.step()
             #breakpoint()
             #Recollect information
