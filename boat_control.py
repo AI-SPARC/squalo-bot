@@ -68,9 +68,6 @@ class BoatControl():
 
     def collect_boat_info(self):
         boat_position = self.sim.getObjectPosition(self.boat, -1)
-        #boat_orientation = sim.getObjectQuaternion(boat, -1)
-        #quat = np.array([boat_orientation[3], boat_orientation[0], boat_orientation[1], boat_orientation[2]]) # Remember: getObjectQuaternion has real part as last element
-        #(roll, pitch, yaw) = quat2euler(quat)
         boat_velocity = self.sim.getObjectVelocity(self.boat, -1)
 
         #theta = extract_angular(boat_position[0], boat_position[1])
@@ -89,9 +86,6 @@ class BoatControl():
         #Target
         position = self.sim.getObjectPosition(self.boat_target, self.boat)
         position_to_world = self.sim.getObjectPosition(self.boat_target, -1)
-        #orientation = sim.getObjectQuaternion(boat_target, boat)
-        #quat = np.array([orientation[3], orientation[0], orientation[1], orientation[2]]) # Remember: getObjectQuaternion has real part as last element
-        #(roll, pitch, target_yaw) = quat2euler(quat)
 
         theta = self.extract_angular(position[0], position[1])
         v = 0
@@ -179,6 +173,7 @@ if __name__ == '__main__':
     plt.figure('Figure 3')
     plt.plot(boat_control.x_boat, boat_control.y_boat, label='Boat Position')
     plt.plot([boat_control.x_target], [boat_control.y_target], marker="o", markersize=10, markerfacecolor="green", label='Target')
+    plt.axis('equal')
     plt.title('Boat Position History')
     plt.xlabel('X')
     plt.ylabel('Y')
