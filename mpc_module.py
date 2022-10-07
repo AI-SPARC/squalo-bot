@@ -68,9 +68,9 @@ class MPCClass():
             'store_full_solution': False,
             'open_loop': True,
             'nlpsol_opts': {
-                'ipopt.print_level': 0,
-                'ipopt.sb': 'yes',
-                'print_time': 0
+                'ipopt.print_level': 1,
+                'ipopt.sb': 'no',
+                'print_time': 1
             }
         }
         self.mpc.set_param(**setup_mpc)

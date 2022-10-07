@@ -20,7 +20,7 @@ class BoatControl():
         self.client = RemoteAPIClient()
         self.sim = self.client.getObject('sim')
 
-        self.client.setStepping(True)
+        #self.client.setStepping(True)
 
         self.sim.startSimulation()
 
@@ -140,8 +140,8 @@ class BoatControl():
             self.time_data.append(time_elapsed)
 
             # Time step
-            #time.sleep(self.Ts)
-            self.client.step()
+            time.sleep(self.Ts)
+            #self.client.step()
             #breakpoint()
             #Recollect information
 
@@ -156,8 +156,8 @@ if __name__ == '__main__':
     plt.title('Boat Speed History')
     plt.xlabel('Time')
     plt.ylabel('Speed')
-    plt.savefig('images/figure_1.png', dpi=300, bbox_inches='tight')
     plt.legend()
+    plt.savefig('images/figure_1.png', dpi=300, bbox_inches='tight')
     plt.show()
 
     plt.figure('Figure 2')
@@ -166,8 +166,8 @@ if __name__ == '__main__':
     plt.title('Boat Forces History')
     plt.xlabel('Time')
     plt.ylabel('Fr and Fl')
-    plt.savefig('images/figure_2.png', dpi=300, bbox_inches='tight')
     plt.legend()
+    plt.savefig('images/figure_2.png', dpi=300, bbox_inches='tight')
     plt.show()
 
     plt.figure('Figure 3')
@@ -177,8 +177,8 @@ if __name__ == '__main__':
     plt.title('Boat Position History')
     plt.xlabel('X')
     plt.ylabel('Y')
-    plt.savefig('images/figure_3.png', dpi=300, bbox_inches='tight')
     plt.legend()
+    plt.savefig('images/figure_3.png', dpi=300, bbox_inches='tight')
     plt.show()
 
     plt.figure('Figure 4')
@@ -187,8 +187,8 @@ if __name__ == '__main__':
     plt.title('Theta History')
     plt.xlabel('Time')
     plt.ylabel('Theta')
-    plt.savefig('images/figure_4.png', dpi=300, bbox_inches='tight')
     plt.legend()
+    plt.savefig('images/figure_4.png', dpi=300, bbox_inches='tight')
     plt.show()
 
     plt.figure('Figure 5')
