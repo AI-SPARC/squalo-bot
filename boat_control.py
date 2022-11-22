@@ -20,7 +20,9 @@ class BoatControl():
         self.client = RemoteAPIClient()
         self.sim = self.client.getObject('sim')
 
-        #self.client.setStepping(True)
+        self.set_step = True
+        
+        self.client.setStepping(self.set_step)
 
         self.sim.startSimulation()
 
@@ -41,6 +43,8 @@ class BoatControl():
         self.theta_ref = []
         self.omega_ref = []
         self.v_ref = []
+        
+        self.error_data = []
 
     def quat2euler(self, h):
         roll = np.arctan2(2*(h[0]*h[1] + h[2]*h[3]), 1 - 2*(h[1]**2 + h[2]**2))
@@ -105,8 +109,9 @@ class BoatControl():
     def distance(self):
         target_position = self.sim.getObjectPosition(self.boat_target, -1)
         boat_position = self.sim.getObjectPosition(self.boat, -1)
-
-        return math.dist([target_position[0], target_position[1]], [boat_position[0], boat_position[1]])
+        result = math.dist([target_position[0], target_position[1]], [boat_position[0], boat_position[1]])
+        self.error_data.append(result)
+        return result
 
     def execute_control(self):
         steps = 0
@@ -140,9 +145,10 @@ class BoatControl():
             self.time_data.append(time_elapsed)
 
             # Time step
-            time.sleep(self.Ts)
-            #self.client.step()
-            #breakpoint()
+            if self.set_step:
+                self.client.step()
+            else:
+                time.sleep(self.Ts)
             #Recollect information
 
 
@@ -197,6 +203,19 @@ if __name__ == '__main__':
     plt.title('Omega History')
     plt.xlabel('Time')
     plt.ylabel('Omega')
+    plt.legend()
     plt.savefig('images/figure_5.png', dpi=300, bbox_inches='tight')
     plt.legend()
     plt.show()
+    
+    plt.figure('Figure 6')
+    plt.plot(boat_control.time_data, boat_control.error_data[1:], label='error')
+    plt.title('Error History')
+    plt.xlabel('Time')
+    plt.ylabel('Error Value')
+    plt.legend()
+    plt.savefig('images/figure_6.png', dpi=300, bbox_inches='tight')
+    plt.legend()
+    plt.show()
+    
+    np.savetxt('results/error_data.csv', boat_control.error_data, delimiter=",")
