@@ -155,6 +155,7 @@ class BoatControl():
 if __name__ == '__main__':
     boat_control = BoatControl()
     boat_control.execute_control()
+    scenario = 'scenario01'
 
     plt.figure('Figure 1')
     plt.plot(boat_control.time_data, boat_control.boat_speed, label='Boat speed')
@@ -163,7 +164,7 @@ if __name__ == '__main__':
     plt.xlabel('Time')
     plt.ylabel('Speed')
     plt.legend()
-    plt.savefig('images/figure_1.png', dpi=300, bbox_inches='tight')
+    plt.savefig('results/' + scenario + '/figure_1.png', dpi=300, bbox_inches='tight')
     plt.show()
 
     plt.figure('Figure 2')
@@ -173,7 +174,7 @@ if __name__ == '__main__':
     plt.xlabel('Time')
     plt.ylabel('Fr and Fl')
     plt.legend()
-    plt.savefig('images/figure_2.png', dpi=300, bbox_inches='tight')
+    plt.savefig('results/' + scenario + '/figure_2.png', dpi=300, bbox_inches='tight')
     plt.show()
 
     plt.figure('Figure 3')
@@ -184,7 +185,7 @@ if __name__ == '__main__':
     plt.xlabel('X')
     plt.ylabel('Y')
     plt.legend()
-    plt.savefig('images/figure_3.png', dpi=300, bbox_inches='tight')
+    plt.savefig('results/' + scenario + '/figure_3.png', dpi=300, bbox_inches='tight')
     plt.show()
 
     plt.figure('Figure 4')
@@ -194,7 +195,7 @@ if __name__ == '__main__':
     plt.xlabel('Time')
     plt.ylabel('Theta')
     plt.legend()
-    plt.savefig('images/figure_4.png', dpi=300, bbox_inches='tight')
+    plt.savefig('results/' + scenario + '/figure_4.png', dpi=300, bbox_inches='tight')
     plt.show()
 
     plt.figure('Figure 5')
@@ -204,7 +205,7 @@ if __name__ == '__main__':
     plt.xlabel('Time')
     plt.ylabel('Omega')
     plt.legend()
-    plt.savefig('images/figure_5.png', dpi=300, bbox_inches='tight')
+    plt.savefig('results/' + scenario + '/figure_5.png', dpi=300, bbox_inches='tight')
     plt.legend()
     plt.show()
     
@@ -214,8 +215,8 @@ if __name__ == '__main__':
     plt.xlabel('Time')
     plt.ylabel('Error Value')
     plt.legend()
-    plt.savefig('images/figure_6.png', dpi=300, bbox_inches='tight')
+    plt.savefig('results/' + scenario + '/figure_6.png', dpi=300, bbox_inches='tight')
     plt.legend()
     plt.show()
     
-    np.savetxt('results/error_data.csv', boat_control.error_data, delimiter=",")
+    np.savetxt('results/' + scenario + '/error_data.csv', boat_control.error_data, delimiter=",")
